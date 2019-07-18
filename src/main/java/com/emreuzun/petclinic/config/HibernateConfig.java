@@ -1,4 +1,4 @@
-package com.emreuzun.petclinic;
+package com.emreuzun.petclinic.config;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;

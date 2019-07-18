@@ -1,5 +1,6 @@
 package com.emreuzun.petclinic;
 
+import com.emreuzun.petclinic.config.HibernateConfig;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.Test;
