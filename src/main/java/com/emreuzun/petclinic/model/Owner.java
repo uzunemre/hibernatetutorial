@@ -1,20 +1,15 @@
 package com.emreuzun.petclinic.model;
 
 
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SecondaryTable;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @SecondaryTable(name="t_address",pkJoinColumns=@PrimaryKeyJoinColumn(name="owner_id"))
 @Entity
 @Table(name="t_owner")
 public class Owner extends Person {
 
-    @Enumerated(EnumType.ORDINAL)
+    @Convert(converter=RatingAttributeConverter.class)
+    //@Enumerated(EnumType.ORDINAL)
     private Rating rating;
 
     @Embedded
