@@ -32,5 +32,19 @@ public class HibernateTest {
         session.close();
     }
 
+    @Test
+    public void testWithoutTX() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        Pet pet = new Pet();
+        pet.setId(1L);
+        pet.setName("kedicik");
+        session.persist(pet);
+        session.flush();
+        session.close();
+        // hibernate.allow_update_outside_transaction true olursa çalışıt
+        // aktif bir transactiona ihtiyaç duymaz hibernate tarafında
+        // tercih edilir bir yöntem değildir.
+    }
+
 
 }
