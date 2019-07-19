@@ -46,5 +46,20 @@ public class HibernateTest {
         // tercih edilir bir yöntem değildir.
     }
 
+    @Test
+    public void testCheckNullability() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        Transaction tx = session.getTransaction();
+        tx.begin();
+
+        Pet pet = new Pet();
+        pet.setId(1L);
+
+        session.persist(pet);
+
+        tx.commit();
+        session.close();
+    }
+
 
 }

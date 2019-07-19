@@ -12,8 +12,8 @@ public class Pet {
     @Id
     private Long id;
 
-    @Basic
-    @Column(name="pet_name")
+    //@Basic(optional=false) nullable ile aynı işlevi yapar
+    @Column(name="pet_name",nullable=false)
     private String name;
 
     public Long getId() {
