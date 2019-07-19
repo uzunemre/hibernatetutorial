@@ -1,6 +1,8 @@
 package com.emreuzun.petclinic;
 
 import com.emreuzun.petclinic.config.HibernateConfig;
+import com.emreuzun.petclinic.model.Owner;
+import com.emreuzun.petclinic.model.Owner.OwnerId;
 import com.emreuzun.petclinic.model.Pet;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -56,6 +58,27 @@ public class HibernateTest {
         pet.setId(1L);
 
         session.persist(pet);
+
+        tx.commit();
+        session.close();
+    }
+
+
+    @Test
+    public void testCompositePK() {
+        Owner owner = new Owner();
+
+        OwnerId id = new OwnerId();
+        id.setFirstName("Kenan");
+        id.setLastName("Sevindik");
+
+        owner.setId(id);
+
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        Transaction tx = session.getTransaction();
+        tx.begin();
+
+        session.persist(owner);
 
         tx.commit();
         session.close();
