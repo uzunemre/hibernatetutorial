@@ -1,8 +1,10 @@
 package com.emreuzun.petclinic;
 
 import com.emreuzun.petclinic.config.HibernateConfig;
+import com.emreuzun.petclinic.model.Address;
 import com.emreuzun.petclinic.model.Owner;
-import com.emreuzun.petclinic.model.Owner.OwnerId;
+import com.emreuzun.petclinic.model.OwnerWithCompositePk;
+import com.emreuzun.petclinic.model.OwnerWithCompositePk.OwnerId;
 import com.emreuzun.petclinic.model.Pet;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -66,17 +68,40 @@ public class HibernateTest {
 
     @Test
     public void testCompositePK() {
-        Owner owner = new Owner();
+        OwnerWithCompositePk owner = new OwnerWithCompositePk();
 
         OwnerId id = new OwnerId();
-        id.setFirstName("Kenan");
-        id.setLastName("Sevindik");
+        id.setFirstName("Emre");
+        id.setLastName("Uzun");
 
         owner.setId(id);
 
         Session session = HibernateConfig.getSessionFactory().openSession();
         Transaction tx = session.getTransaction();
         tx.begin();
+
+        session.persist(owner);
+
+        tx.commit();
+        session.close();
+    }
+
+
+    @Test
+    public void testEmbeddable() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        Transaction tx = session.getTransaction();
+        tx.begin();
+
+        Owner owner = new Owner();
+        owner.setFirstName("Emre");
+        owner.setLastName("Uzun");
+
+        Address address = new Address();
+        address.setStreet("İstanbul");
+        address.setPhone("3122101036");
+
+        owner.setAddress(address);
 
         session.persist(owner);
 
