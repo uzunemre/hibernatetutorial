@@ -1,12 +1,8 @@
 package com.emreuzun.petclinic.model;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+@SecondaryTable(name="t_address",pkJoinColumns = @PrimaryKeyJoinColumn(name="owner_id"))
 @Entity
 @Table(name="t_owner")
 public class Owner {
