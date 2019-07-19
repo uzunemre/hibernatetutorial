@@ -9,5 +9,6 @@
         <mapping class="com.emreuzun.petclinic.model.Pet"/>
         <mapping class="com.emreuzun.petclinic.model.OwnerWithCompositePk"/>
         <mapping class="com.emreuzun.petclinic.model.Owner"/>
+        <mapping class="com.emreuzun.petclinic.model.Vet"/>
     </session-factory>
 </hibernate-configuration>
