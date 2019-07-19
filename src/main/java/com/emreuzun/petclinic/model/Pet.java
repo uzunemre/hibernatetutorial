@@ -1,16 +1,16 @@
 package com.emreuzun.petclinic.model;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name="t_pet")
 public class Pet {
+
     @Id
+    @GeneratedValue(generator="seqGen")
+    @SequenceGenerator(name="seqGen",sequenceName="pet_seq")
     private Long id;
+    // primary key generation
 
     //@Basic(optional=false) nullable ile aynı işlevi yapar
     @Column(name="pet_name",nullable=false)
