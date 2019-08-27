@@ -16,6 +16,10 @@ public class Pet extends BaseEntity {
     @Temporal(TemporalType.DATE)
     private Date birthDate;
 
+    @ManyToOne
+    @JoinColumn(name="type_id")
+    private PetType type;
+
     public String getName() {
         return name;
     }
@@ -30,5 +34,13 @@ public class Pet extends BaseEntity {
 
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public PetType getType() {
+        return type;
+    }
+
+    public void setType(PetType type) {
+        this.type = type;
     }
 }
