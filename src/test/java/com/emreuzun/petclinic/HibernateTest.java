@@ -17,6 +17,53 @@ import com.emreuzun.petclinic.model.Visit;
 
 public class HibernateTest {
 
+
+    @Test
+    public void testLoad() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+
+        Pet pet = session.load(Pet.class, 1L);
+        // pet kaydı için veritabanına bir select atmadı. bu nesne bir proxy nesne
+        // proxy nesnede sadece primary key değer ivar. proxy nesneden name alanının çektiğimiz an select atar
+        System.out.println("--- pet loaded ---");
+        if(pet == null) {
+            System.out.println("pet is null returning");
+            return;
+        }
+        System.out.println(pet.getName());
+        System.out.println(pet.getClass());
+
+        Pet pet2 = session.get(Pet.class, 1L);
+        System.out.println("--- pet loaded second time ---");
+        System.out.println(pet2.getName());
+        System.out.println(pet == pet2);
+        // session loada niye ihtiyaç duyulur.
+        // entity stateine ihtiyaç yoksa sadece referans ihtiyaçı varsa o zaman kullanılır.
+    }
+
+    // entity load ile persistence contexte yüklenmişse sonradan get ile çekildiğinde proxy nesneyi döndürür
+    // first level cacheden dolayı
+    @Test
+    public void testGet() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+
+        Pet pet = session.get(Pet.class, 1L);
+        System.out.println("--- pet loaded ---");
+        if(pet == null) {
+            System.out.println("pet is null returning");
+            return;
+        }
+        System.out.println(pet.getName());
+        System.out.println(pet.getClass());
+        Pet pet2 = session.get(Pet.class, 1L);
+        System.out.println("--- pet loaded second time ---");
+        System.out.println(pet2.getName());
+        System.out.println(pet == pet2);
+        // aynı referans (first level cache)
+    }
+
     @Test
     public void testHibernateSetup() {
         Session session = HibernateConfig.getSessionFactory().openSession();

@@ -1,0 +1,18 @@
+Persistence-Context
+Uygulama içerisinde db den yüklenen entity nesneleri yöneten yapıdır.
+Entity nesnelerin referanslarını tutar
+Entity nesneler üzerinde yapılan değişiklikleri takip eder ve bu değişiklikleri otomatik olarak Db'ye yansıtır.
+Aynı entity'ye erişim söz konusu olduğunda Dn'ye gitmeyip bu nesne referansı döner.(First level cache).
+First level cache zorunludur.
+-----------------------------------------
+Entity State Transition Model
+new operatöri ile oluşturulan nesne transient statededir.
+bu nesneler veritabanına kaydedilirse persist veya managed stateine geçer.
+veritabanından çekilen nesneler managed stateindedir ve persistence context tarafından kontrol edilir.
+commit aşamasında değişiklikler veritabanına yansıtılır.
+istenilirse manuel olarak flush methodu kullanılarak veritabanına yansıtılabilir.
+detached state nesnelerin persistence contextden koparılmasıdır.
+detached nesneler tekrar attached yapılabilir.
+--------------------------------------------
+64-den davam edilsin
+
