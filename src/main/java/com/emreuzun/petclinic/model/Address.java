@@ -1,6 +1,12 @@
 package com.emreuzun.petclinic.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Embeddable
 public class Address {
@@ -16,7 +22,7 @@ public class Address {
     private String phone;
 
     @ManyToOne
-    @JoinColumn(name="city_id",table="t_address",foreignKey=@ForeignKey(name="fk_address_city"))
+    @JoinColumn(name = "city_id", table = "t_address", foreignKey = @ForeignKey(name = "fk_address_city"))
     private City city;
 
     public String getStreet() {

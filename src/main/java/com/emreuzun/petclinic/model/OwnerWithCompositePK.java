@@ -9,8 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="t_owner")
-public class OwnerWithCompositePk {
+@Table(name="t_owner_with_composite_pk")
+public class OwnerWithCompositePK {
 
     @Embeddable
     public static class OwnerId implements Serializable {

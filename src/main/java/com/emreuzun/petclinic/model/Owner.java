@@ -1,25 +1,49 @@
 package com.emreuzun.petclinic.model;
 
-
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SecondaryTable;
+import javax.persistence.Table;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
+@TypeDef(name="ratingType",typeClass=RatingUserType.class)
 @SecondaryTable(name="t_address",pkJoinColumns=@PrimaryKeyJoinColumn(name="owner_id"))
 @Entity
 @Table(name="t_owner")
 public class Owner extends Person {
 
-    @Convert(converter=RatingAttributeConverter.class)
+
+    @Type(type="ratingType")
+    //@Convert(converter=RatingAttributeConverter.class)
     //@Enumerated(EnumType.ORDINAL)
     private Rating rating;
 
-    @OneToMany
-    @JoinColumn(name="owner_id")
+    @OneToMany(mappedBy="owner")
     private Set<Pet> pets = new HashSet<>();
 
     @Embedded
     private Address address;
+
+    @ElementCollection
+    @CollectionTable(name="t_owner_emails",joinColumns=@JoinColumn(name="owner_id"))
+    private Set<Email> emails = new HashSet<>();
+
+
+    public Set<Pet> getPets() {
+        return pets;
+    }
+
+    public void setPets(Set<Pet> pets) {
+        this.pets = pets;
+    }
 
     public Address getAddress() {
         return address;
@@ -37,7 +61,5 @@ public class Owner extends Person {
         this.rating = rating;
     }
 
-    public Set<Pet> getPets() {
-        return pets;
-    }
+
 }

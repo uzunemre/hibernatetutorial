@@ -7,15 +7,15 @@
         <property name="hibernate.connection.url">jdbc:h2:tcp://localhost/~/test</property>
         <property name="hibernate.connection.username">sa</property>
         <mapping class="com.emreuzun.petclinic.model.Pet"/>
-        <mapping class="com.emreuzun.petclinic.model.OwnerWithCompositePk"/>
+        <mapping class="com.emreuzun.petclinic.model.OwnerWithCompositePK"/>
         <mapping class="com.emreuzun.petclinic.model.Owner"/>
         <mapping class="com.emreuzun.petclinic.model.Vet"/>
         <mapping class="com.emreuzun.petclinic.model.Visit"/>
-
+        <mapping class="com.emreuzun.petclinic.model.Image"/>
+        <mapping class="com.emreuzun.petclinic.model.ImageContent"/>
         <mapping class="com.emreuzun.petclinic.model.City"/>
         <mapping class="com.emreuzun.petclinic.model.Clinic"/>
         <mapping class="com.emreuzun.petclinic.model.PetType"/>
         <mapping class="com.emreuzun.petclinic.model.Specialty"/>
-
     </session-factory>
 </hibernate-configuration>
