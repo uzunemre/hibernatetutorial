@@ -17,5 +17,6 @@
         <mapping class="com.emreuzun.petclinic.model.Clinic"/>
         <mapping class="com.emreuzun.petclinic.model.PetType"/>
         <mapping class="com.emreuzun.petclinic.model.Specialty"/>
+        <mapping class="com.emreuzun.petclinic.model.Person"/>
     </session-factory>
 </hibernate-configuration>
