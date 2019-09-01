@@ -14,7 +14,9 @@ import javax.persistence.Table;
 @Entity
 @Table(name="t_person")
 @Inheritance(strategy=InheritanceType.JOINED)
-// TABLE_PER_CLASS ve JOINED(ayrı tablolar oluşur performans düşürür) inheritance tipleri de var
+// Single Table; polymorphic sorgulara ve ilişkilere ihtiyacımız varsa ve performansta bizim için önemliyse tercih etmemiz gereken strateji ancak dikkat etmemiz gereken konu veri bütünlüğü(!) Bu stratejiyi kullanırken constraintleri kullanamıyoruz.
+//Joined Table; eğer veri bütünlüğü bizim için performans, polymorphic sorgular ve ilişkilerden daha önemliyse seçmemiz gereken strateji olacaktır.
+//Table-Per-Class; Polymorphic sorgulara ve ilişkilere ihtiyacımız yoksa bizim için daha uygun olan strateji bu olacaktır. Ayrıca bize constraintler tanımlayabilmemiz sayesinde veri bütünlüğünü oluşturma olanağı sağlar. Ayrıca bu stratejide polymorphic sorgu ve ilişkiler sağlayabiliriz ancak unutmamamız gereken; bu sorgular kompleks tablo yapımızdan dolayı bizim için çok kullanışsız ve performanssızdır.
 public abstract class Person extends BaseEntity {
 
     @Column(name="first_name")
