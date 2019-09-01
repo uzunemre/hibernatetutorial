@@ -2,18 +2,12 @@ package com.emreuzun.petclinic.model;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CollectionTable;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SecondaryTable;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
+@DiscriminatorValue("o")
 @TypeDef(name="ratingType",typeClass=RatingUserType.class)
 @SecondaryTable(name="t_address",pkJoinColumns=@PrimaryKeyJoinColumn(name="owner_id"))
 @Entity
