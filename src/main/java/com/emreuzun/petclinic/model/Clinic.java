@@ -1,22 +1,22 @@
 package com.emreuzun.petclinic.model;
 
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Table(name="t_clinic")
-public class Clinic extends BaseEntity {
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "t_clinic")
+public class Clinic extends BaseEntity {
     private String name;
 
     @OneToMany
-    @JoinTable(name = "t_clinic_owner", joinColumns = @JoinColumn(name = "clinic_id"), inverseJoinColumns = @JoinColumn(name = "owner_id"))
-    private Set<Owner> owners = new HashSet<>();
-
-    @OneToMany
-    @JoinTable(name = "t_clinic_vet", joinColumns = @JoinColumn(name = "clinic_id"), inverseJoinColumns = @JoinColumn(name = "vet_id"))
-    private Set<Vet> vets = new HashSet<>();
+    @JoinTable(name = "t_clinic_person", joinColumns = @JoinColumn(name = "clinic_id"), inverseJoinColumns = @JoinColumn(name = "person_id"))
+    private Set<Person> persons = new HashSet<>();
 
     public String getName() {
         return name;
@@ -26,19 +26,14 @@ public class Clinic extends BaseEntity {
         this.name = name;
     }
 
-    public Set<Owner> getOwners() {
-        return owners;
+    public Set<Person> getPersons() {
+        return persons;
     }
 
-    public void setOwners(Set<Owner> owners) {
-        this.owners = owners;
+    public void setPersons(Set<Person> persons) {
+        this.persons = persons;
     }
 
-    public Set<Vet> getVets() {
-        return vets;
-    }
 
-    public void setVets(Set<Vet> vets) {
-        this.vets = vets;
-    }
+
 }

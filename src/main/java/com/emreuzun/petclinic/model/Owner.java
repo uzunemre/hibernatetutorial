@@ -1,13 +1,19 @@
 package com.emreuzun.petclinic.model;
 
+
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.*;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.SecondaryTable;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-@DiscriminatorValue("o")
+
 @TypeDef(name="ratingType",typeClass=RatingUserType.class)
 @SecondaryTable(name="t_address",pkJoinColumns=@PrimaryKeyJoinColumn(name="owner_id"))
 @Entity
@@ -25,11 +31,6 @@ public class Owner extends Person {
 
     @Embedded
     private Address address;
-
-    @ElementCollection
-    @CollectionTable(name="t_owner_emails",joinColumns=@JoinColumn(name="owner_id"))
-    private Set<Email> emails = new HashSet<>();
-
 
     public Set<Pet> getPets() {
         return pets;
