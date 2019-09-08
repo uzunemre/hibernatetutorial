@@ -14,5 +14,5 @@ istenilirse manuel olarak flush methodu kullanılarak veritabanına yansıtılab
 detached state nesnelerin persistence contextden koparılmasıdır.
 detached nesneler tekrar attached yapılabilir.
 --------------------------------------------
-64-den davam edilsin
 
+86
