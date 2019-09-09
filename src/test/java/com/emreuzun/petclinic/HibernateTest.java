@@ -5,11 +5,11 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
+import com.emreuzun.petclinic.dao.ClinicDao;
+import com.emreuzun.petclinic.dao.OwnerDao;
 import com.emreuzun.petclinic.model.*;
-import org.hibernate.Hibernate;
-import org.hibernate.LockMode;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import com.emreuzun.petclinic.service.PetClinicService;
+import org.hibernate.*;
 import org.hibernate.stat.EntityStatistics;
 import org.hibernate.stat.QueryStatistics;
 import org.hibernate.stat.Statistics;
@@ -18,6 +18,133 @@ import com.emreuzun.petclinic.config.HibernateConfig;
 import com.emreuzun.petclinic.model.OwnerWithCompositePK.OwnerId;
 
 public class HibernateTest {
+
+    /**
+     * session1 in yaptığı değişiklik en son commit edildiği için veritabanında o vardır.(base entityde version yoksa)
+     * istenmeyen bir durum bu yüzden lock kullanılmalı(base entityde version eklenmeli)
+     */
+    @Test
+    public void testConcurrency() {
+        Session session1 = HibernateConfig.getSessionFactory().openSession();
+        session1.beginTransaction();
+
+        Session session2 = HibernateConfig.getSessionFactory().openSession();
+        session2.beginTransaction();
+
+        Pet pet1 = session1.get(Pet.class, 1L);
+
+        Pet pet2 = session2.get(Pet.class, 1L);
+
+        pet1.setOwner(session1.load(Owner.class, 8L));
+
+        pet2.setType(session2.load(PetType.class, 6L));
+
+        session2.getTransaction().commit();
+
+        System.out.println("--- after session 2 commit ---");
+
+        session1.getTransaction().commit();
+
+        System.out.println("--- after session 1 commit ---");
+
+        session1.close();
+        session2.close();
+
+    }
+
+    @Test
+    public void testLayeredArchitecture() {
+        PetClinicService pcs = new PetClinicService();
+        OwnerDao ownerDao = new OwnerDao();
+        ClinicDao clinicDao = new ClinicDao();
+        SessionFactory sf = HibernateConfig.getSessionFactory();
+
+        ownerDao.setSessionFactory(sf);
+        clinicDao.setSessionFactory(sf);
+
+        pcs.setOwnerDao(ownerDao);
+        pcs.setClinicDao(clinicDao);
+
+        Transaction tx = sf.getCurrentSession().beginTransaction();
+
+        Owner owner1 = new Owner();
+        owner1.setFirstName("A");
+        owner1.setLastName("B");
+
+        Owner owner2 = new Owner();
+        owner2.setFirstName("C");
+        owner2.setLastName("D");
+        try {
+            pcs.addNewOwners(1L, owner1,owner2);
+            tx.commit();
+        } catch(Exception ex) {
+            tx.rollback();
+            throw ex;
+        }
+    }
+
+    /**
+     * aynı sessionları geri döndürür
+     */
+    @Test
+    public void testContextualSession2() {
+        Session session1 = HibernateConfig.getSessionFactory().getCurrentSession();
+        Session session2 = HibernateConfig.getSessionFactory().getCurrentSession();
+
+        System.out.println(session1 == session2); // true
+        session1.beginTransaction().commit();
+        session2 = HibernateConfig.getSessionFactory().getCurrentSession(); // session 2 kapatılmıştı tekrar açılır
+        System.out.println(session1 == session2); // false
+        Session session3 = HibernateConfig.getSessionFactory().openSession(); // yeni session açılır
+        System.out.println(session2 == session3); // false
+    }
+
+    /**
+     * sesiona herhangi bir yerden thread safe şekilde erişilmesini sağlar
+     * open sessiona gerek kalmıyor. sessionyaksa session açıp döner. eğer session varsa onu geri döner
+     * session close yazmaya gerek yok kendisi otomatik kapatır
+     */
+    @Test
+    public void testContextualSession() {
+        Session session = HibernateConfig.getSessionFactory().getCurrentSession();
+        Transaction tx = session.beginTransaction();
+        PetType petType = session.get(PetType.class, 1L);
+
+        petType.setName("xxx");
+
+        tx.commit();
+        //session.close();
+        System.out.println("--- after tx commit ---");
+        System.out.println("Session open :" + session.isOpen());
+
+    }
+
+    @Test
+    public void testCascade() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+
+        Owner owner = new Owner();
+        owner.setFirstName("Emre");
+        owner.setLastName("Uzun");
+
+        Pet pet = new Pet();
+        pet.setName("my puppie");
+
+        owner.getPets().add(pet);
+        //pet.setOwner(owner); pet ile owner arasında ilişki kaldırıldı. cascade olması bir işe yaramaz
+
+        Visit visit = new Visit();
+        visit.setVisitDescription("checkup");
+        visit.setVisitDate(new Date());
+
+        pet.getVisits().add(visit);
+
+        session.persist(owner);
+
+        tx.commit();
+        session.close();
+    }
 
     /**
      * refresh methodu veritabanınan gider ve veriyi çeker.(first level cache'e bakmaz)

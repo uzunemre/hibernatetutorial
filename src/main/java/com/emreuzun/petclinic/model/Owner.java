@@ -3,13 +3,9 @@ package com.emreuzun.petclinic.model;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.SecondaryTable;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -26,7 +22,8 @@ public class Owner extends Person {
     //@Enumerated(EnumType.ORDINAL)
     private Rating rating;
 
-    @OneToMany(mappedBy="owner")
+    @OneToMany(mappedBy="owner",cascade= CascadeType.PERSIST)
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private Set<Pet> pets = new HashSet<>();
 
     @Embedded
