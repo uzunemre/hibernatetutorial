@@ -20,6 +20,29 @@ import com.emreuzun.petclinic.model.OwnerWithCompositePK.OwnerId;
 public class HibernateTest {
 
     /**
+     * AuditInterceptor yazılarak HibernateConfigde konfigürasyon varsa(interceptor persist delete ve dirty işlemlerinde araya girecektir)
+     * event listener aktifse AuditEntityListenerler çalışır
+     */
+    @Test
+    public void testAuditInterceptor() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        Pet pet = new Pet("kedicik 4",new Date());
+
+        session.persist(pet);
+
+        Pet pet2 = session.get(Pet.class, 1L);
+
+        pet2.setBirthDate(new Date());
+
+        session.delete(session.load(Pet.class, 8L));
+
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    /**
      * session1 in yaptığı değişiklik en son commit edildiği için veritabanında o vardır.(base entityde version yoksa)
      * istenmeyen bir durum bu yüzden lock kullanılmalı(base entityde version eklenmeli)
      */

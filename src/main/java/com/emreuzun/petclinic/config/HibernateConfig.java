@@ -1,5 +1,6 @@
 package com.emreuzun.petclinic.config;
 
+import com.emreuzun.petclinic.event.AuditInterceptor;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -12,7 +13,7 @@ public class HibernateConfig {
     }
 
     static {
-        Configuration cfg = new Configuration().configure();
+        Configuration cfg = new Configuration().setInterceptor(new AuditInterceptor()).configure();
         sessionFactory = cfg.buildSessionFactory();
     }
 }
