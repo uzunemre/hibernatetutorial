@@ -3,6 +3,7 @@ package com.emreuzun.petclinic;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import com.emreuzun.petclinic.dao.ClinicDao;
@@ -10,14 +11,119 @@ import com.emreuzun.petclinic.dao.OwnerDao;
 import com.emreuzun.petclinic.model.*;
 import com.emreuzun.petclinic.service.PetClinicService;
 import org.hibernate.*;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.stat.EntityStatistics;
 import org.hibernate.stat.QueryStatistics;
 import org.hibernate.stat.Statistics;
+import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.junit.Test;
 import com.emreuzun.petclinic.config.HibernateConfig;
 import com.emreuzun.petclinic.model.OwnerWithCompositePK.OwnerId;
 
 public class HibernateTest {
+
+
+    @Test
+    public void testNativeSQL() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        NativeQuery<Pet> nativeQuery = session.createNativeQuery("select * from t_pet p where p.pet_name like ?",Pet.class);
+
+        nativeQuery.setParameter(1, "K%");
+
+        List<Pet> resultList = nativeQuery.getResultList();
+
+//		for(Object[] row:resultList) {
+//			System.out.println(row[0] + " - " + row[1] + " - " + row[2] + " - " + row[3] + " - " + row[4] + " - " + row[5]);
+//		}
+
+        resultList.forEach(System.out::println);
+    }
+
+    /**
+     *
+     */
+    @Test
+    public void testNamedQuery() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        Query<Pet> query = session.createNamedQuery("findPetsByName", Pet.class);
+
+        query.setParameter("name", "K%");
+
+        List<Pet> resultList = query.getResultList();
+
+        resultList.forEach(System.out::println);
+    }
+
+    @Test
+    public void testQueriesWithDTO() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        String queryString = "select p.name as name,p.birthDate as birthDate from Pet p";
+
+        List<Pet> resultList = session.createQuery(queryString).setResultTransformer(new AliasToBeanResultTransformer(Pet.class)).getResultList();
+
+        resultList.forEach(System.out::println);
+    }
+
+    @Test
+    public void testReportQueries() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        String queryString = "select p.name,p.birthDate from Pet p";
+
+        List<Object[]> resultList = session.createQuery(queryString).getResultList();
+
+        for(Object[] row:resultList) {
+            String name = (String)row[0];
+            Date birthDate = (Date)row[1];
+
+            System.out.println("Pet with name :" + name + " and bidrth date :" + birthDate);
+        }
+    }
+
+    @Test
+    public void testJoins() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        String queryString = "select distinct o from Owner o left outer join o.pets p where p.name like :petName";
+
+        Query<Owner> query = session.createQuery(queryString);
+
+        query.setParameter("petName", "%");
+
+//		List<Object[]> resultList = query.getResultList();
+//
+//		for(Object[] row:resultList) {
+//			Owner o = (Owner)row[0];
+//			Pet p = (Pet)row[1];
+//			System.out.println("Owner :" + o);
+//			System.out.println("Pet :" + p);
+//		}
+
+        List<Owner> resultList = query.getResultList();
+
+        resultList.forEach(System.out::println);
+    }
+
+    @Test
+    public void testHql() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        String queryString = "select p from Pet p where p.name like ? or p.type.id = ?";
+
+        Query<Pet> query = session.createQuery(queryString);
+
+        query.setParameter(0, "K%");
+        query.setParameter(1, 2L);
+
+        List<Pet> resultList = query.getResultList();
+
+        System.out.println("--- query executed ---");
+
+        resultList.forEach(System.out::println);
+    }
 
     /**
      * AuditInterceptor yazılarak HibernateConfigde konfigürasyon varsa(interceptor persist delete ve dirty işlemlerinde araya girecektir)

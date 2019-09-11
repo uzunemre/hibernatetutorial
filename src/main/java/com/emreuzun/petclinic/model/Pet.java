@@ -21,7 +21,9 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.NamedQuery;
 
+@NamedQuery(name = "findPetsByName", query = "from Pet p where p.name like :name")
 @Entity
 @Table(name="t_pet")
 @SequenceGenerator(name="seqGen",sequenceName="pet_seq")
