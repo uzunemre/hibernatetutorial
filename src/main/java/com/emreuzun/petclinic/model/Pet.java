@@ -19,9 +19,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.NamedQuery;
+import org.hibernate.annotations.*;
+
 
 @NamedQuery(name = "findPetsByName", query = "from Pet p where p.name like :name")
 @Entity
@@ -37,14 +36,15 @@ public class Pet extends BaseEntity {
     @Temporal(TemporalType.DATE)
     private Date birthDate;
 
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="type_id")
     private PetType type;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="owner_id")
     private Owner owner;
 
+    //@Fetch(FetchMode.SUBSELECT) ÖNCE PETLER ÇEKİLİR PETLER ÇEKİLDİKDEN SONRA İN QUERYSİ İLE VİSİTLER ÇEKLİR
     @OneToMany(orphanRemoval=true,fetch=FetchType.LAZY,cascade=javax.persistence.CascadeType.ALL)
     @JoinColumn(name="pet_id")
     @OrderColumn(name="visit_order")

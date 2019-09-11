@@ -11,7 +11,9 @@ import com.emreuzun.petclinic.dao.OwnerDao;
 import com.emreuzun.petclinic.model.*;
 import com.emreuzun.petclinic.service.PetClinicService;
 import org.hibernate.*;
+import org.hibernate.criterion.*;
 import org.hibernate.query.NativeQuery;
+import org.hibernate.sql.JoinType;
 import org.hibernate.stat.EntityStatistics;
 import org.hibernate.stat.QueryStatistics;
 import org.hibernate.stat.Statistics;
@@ -22,6 +24,105 @@ import com.emreuzun.petclinic.model.OwnerWithCompositePK.OwnerId;
 
 public class HibernateTest {
 
+    /**
+     * Batch anatosyonu ile select n+1 sorunu çözülür. in query oluşturur. her satırda srgu çalıştırmaz
+     * hibernate.enable_lazy_load_no_trans=true olursa
+     */
+    @Test
+    public void testBatchFetching() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        List<Pet> resultList = session.createQuery("from Pet", Pet.class).getResultList();
+
+        //session.clear();
+
+        resultList.forEach(pet->{
+            PetType type = pet.getType();
+            if(type!=null) {
+                System.out.println("Pet type is " + type.getName());
+            }
+            System.out.println("Visits size is :" + pet.getVisits().size());
+        });
+    }
+
+    @Test
+    public void testSelectNPlusOneProblem() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        // left join fetch yapıldığı için  n+1 select problemi olmayacak. left join olmasaydı foreachde owner.getPets().size() çalıştırılıdğında hep sorgu çalışacaktı
+        List<Owner> resultList = session.createQuery("select distinct o from Owner o left join fetch o.pets p left join fetch p.type left join fetch o.address.city", Owner.class).getResultList();
+
+        System.out.println("--- from Owner query executed ---");
+
+        resultList.forEach(owner->{
+            System.out.println("---");
+            System.out.println("Owner pets size is :" + owner.getPets().size());
+        });
+    }
+
+    @Test
+    public void testCriteriaApiWithJoins() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        Criteria rootCriteria = session.createCriteria(Owner.class);
+
+
+
+        //Criteria petsCriteria = rootCriteria.createCriteria("pets");
+
+        //petsCriteria.add(Restrictions.like("name", "K%"));
+
+        rootCriteria.createAlias("pets", "p", JoinType.LEFT_OUTER_JOIN);
+
+        //rootCriteria.add(Restrictions.like("p.name", "K%"));
+
+        rootCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+
+        List<Owner> list = rootCriteria.list();
+
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    public void testCriteriaApiWithProjections() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        Criteria criteria = session.createCriteria(Pet.class);
+
+        ProjectionList projectionList = Projections.projectionList()
+                .add(Projections.property("name").as("name")).add(Projections.property("birthDate").as("birthDate"));
+
+        criteria.setProjection(projectionList);
+
+        criteria.setResultTransformer(new AliasToBeanResultTransformer(Pet.class));
+
+        List<Pet> list = criteria.list();
+
+//		for(Object[] row:list) {
+//			System.out.println(row[0] + " - " + row[1]);
+//		}
+
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    public void testCriteriaAPI() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        Criteria criteria = session.createCriteria(Pet.class);
+
+        SimpleExpression likeNameCriterion = Restrictions.like("name", "K%");
+
+        SimpleExpression eqTypeIdCriterion = Restrictions.eq("type.id", 4L);
+
+        LogicalExpression orCriterion = Restrictions.or(likeNameCriterion,eqTypeIdCriterion);
+
+        criteria.add(orCriterion);
+
+        List<Pet> list = criteria.list();
+
+        list.forEach(System.out::println);
+    }
 
     @Test
     public void testNativeSQL() {
