@@ -21,7 +21,9 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.*;
 
-
+// write işlemi yapılınca second level cachede ekler.
+// pet nesnesi veritabanından çekildiğinde second level cacheden güncel halini çeker
+@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @NamedQuery(name = "findPetsByName", query = "from Pet p where p.name like :name")
 @Entity
 @Table(name="t_pet")

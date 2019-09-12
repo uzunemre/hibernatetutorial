@@ -1,11 +1,10 @@
 package com.emreuzun.petclinic;
 
-import java.io.IOException;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import com.emreuzun.petclinic.dao.ClinicDao;
 import com.emreuzun.petclinic.dao.OwnerDao;
 import com.emreuzun.petclinic.model.*;
@@ -23,6 +22,89 @@ import com.emreuzun.petclinic.config.HibernateConfig;
 import com.emreuzun.petclinic.model.OwnerWithCompositePK.OwnerId;
 
 public class HibernateTest {
+
+    @Test
+    public void testEntityCache() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        session.get(Pet.class, 1L);
+        System.out.println("--- first session loaded pet entity");
+        session.close();
+
+        session = HibernateConfig.getSessionFactory().openSession();
+        Pet pet = session.get(Pet.class, 1L);
+        System.out.println("--- second session loaded pet entity");
+        System.out.println("Pet name :" + pet.getName());
+    }
+
+    /**
+     * Image nesnesibi veritabanından çekmeden bulk delete işlemi yapabilirz.
+     */
+    @Test
+    public void testBulkDelete() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        int deleteCount = session.createQuery("delete Image i where i.pet.id = 3").executeUpdate();
+
+        System.out.println("--- Delete executed, delete count is :" + deleteCount + " ---");
+
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    /**
+     * Image Content nesnesini sorgulamadan bulk update özelliği ile silebiliriz.
+     * versioned keywordu ile güncellem yapılınca version alanı arttırılacak
+     */
+    @Test
+    public void testBulkUpdate() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+        session.beginTransaction();
+
+        int updateCount = session.createQuery("update versioned ImageContent set content = null").executeUpdate();
+
+        System.out.println("--- update executed, update count is :" + updateCount + " ---");
+
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    /**
+     * fetch keywordu ile sayfalama yapılamaz limit offset değeri disable olur fetch kullanılırsa
+     */
+    @Test
+    public void testPaging() {
+        int pageSize = 2;
+
+        String queryString = "select distinct p from Pet p left join p.visits v where v.visitDate <= :today";
+
+        String countQueryString = "select count(distinct p.id) from Pet p left join p.visits v where v.visitDate <= :today";
+
+        Date today = new Date();
+
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        Long petsCount = session.createQuery(countQueryString,Long.class).setParameter("today", today).getSingleResult();
+
+        Long pageCount = petsCount / pageSize;
+
+        pageCount += petsCount % pageSize != 0 ? 1:0;
+
+        System.out.println("Entity count is :" + petsCount);
+        System.out.println("Page count is :" + pageCount);
+
+        for(int page=0;page<pageCount;page++) {
+            Query<Pet> query = session.createQuery(queryString + " order by p.id asc",Pet.class);
+            query.setParameter("today", today);
+            query.setFirstResult(page * pageSize);
+            query.setMaxResults(pageSize);
+            List<Pet> resultList = query.getResultList();
+            resultList.forEach(System.out::println);
+            System.out.println("--- current page is :" + page + " ---");
+        }
+    }
+
 
     /**
      * Batch anatosyonu ile select n+1 sorunu çözülür. in query oluşturur. her satırda srgu çalıştırmaz
