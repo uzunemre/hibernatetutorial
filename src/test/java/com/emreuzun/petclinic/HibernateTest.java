@@ -23,6 +23,49 @@ import com.emreuzun.petclinic.model.OwnerWithCompositePK.OwnerId;
 
 public class HibernateTest {
 
+    /**
+     * sorguya cacheable özelliği eklenirse aynı sorgu çağırıldığında veritabanına gitmeyecektir.
+     */
+    @Test
+    public void testQueryCache() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        Query<Pet> query = session.createQuery("from Pet", Pet.class);
+        query.setCacheable(true);
+        query.getResultList();
+
+        System.out.println("--- query executed by the first session ---");
+
+        session.close();
+
+        session = HibernateConfig.getSessionFactory().openSession();
+
+        query = session.createQuery("from Pet", Pet.class);
+        query.setCacheable(true);
+        List<Pet> resultList = query.getResultList();
+
+        System.out.println("--- query executed by the second session ---");
+
+        System.out.println("Result size :" + resultList.size());
+    }
+
+    @Test
+    public void testCollectionCache() {
+        Session session = HibernateConfig.getSessionFactory().openSession();
+
+        Owner owner = session.get(Owner.class, 13L);
+        System.out.println(owner.getPets().size());
+        System.out.println("--- first session accessed owner pets collection ---");
+        session.close();
+
+        // yukarıda owner.getPets.size yapılarak pets verileri 2nd level cachede eklenildiğinden. alttaki sorguda pets değerleri için
+        // veritabanına gidilmeyecektir.
+        session = HibernateConfig.getSessionFactory().openSession();
+        owner = session.get(Owner.class, 13L);
+        System.out.println(owner.getPets().size());
+        System.out.println("--- second session accessed owner pets collection ---");
+    }
+
     @Test
     public void testEntityCache() {
         Session session = HibernateConfig.getSessionFactory().openSession();
